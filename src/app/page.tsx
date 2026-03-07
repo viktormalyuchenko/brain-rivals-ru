@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Zap, Play, Trophy, Globe, Activity } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import RotatingText from "@/components/RotatingText";
+import { Metadata } from "next";
 
 // Функция-помощник: превращает код страны в эмодзи-флаг
 const getFlagEmoji = (countryCode: string) => {
@@ -147,3 +148,17 @@ export default async function Home() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Brain Rivals | Онлайн тесты для мозга и реакции",
+  description:
+    "Сборник когнитивных тестов: скорость реакции, аим тренер, память, печать. Соревнуйся в глобальном рейтинге и отслеживай прогресс.",
+  keywords: [
+    "тренировка мозга",
+    "развитие памяти",
+    "тесты онлайн",
+    "iq тесты",
+    "brain training",
+    "lumosity аналог",
+  ],
+};

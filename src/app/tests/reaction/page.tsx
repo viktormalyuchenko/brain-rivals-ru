@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import type { Metadata } from "next";
 
 type GameState =
   | "intro"
@@ -422,3 +423,22 @@ export default function ReactionTest() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Тест на реакцию (мс) | Проверь скорость реакции онлайн",
+  description:
+    "Бесплатный тренажер скорости реакции. Узнай, за сколько миллисекунд твой мозг реагирует на смену цвета. Сравни результат с киберспортсменами.",
+  keywords: [
+    "тест на реакцию",
+    "reaction time test",
+    "скорость реакции",
+    "тренажер реакции",
+    "киберспорт",
+    "benchmark",
+  ],
+  openGraph: {
+    title: "Моя реакция быстрее твоей? Проверь себя!",
+    description:
+      "Тест на скорость реакции в миллисекундах. Попробуй попасть в топ лидерборда.",
+  },
+};

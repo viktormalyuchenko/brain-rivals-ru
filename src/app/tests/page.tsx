@@ -14,6 +14,7 @@ import {
   Lock,
 } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
 
 // Типы для тестов
 type Category = "ALL" | "REACTION" | "MEMORY" | "PRECISION" | "PERCEPTION";
@@ -269,3 +270,9 @@ export default function TestsCatalog() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Каталог тестов | Все тренажеры для мозга",
+  description:
+    "Выберите тест для тренировки: Реакция, Память, Точность, Внимание. Более 7 профессиональных когнитивных тренажеров.",
+};
