@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Trophy, Globe, Filter, Loader2, Zap, Grid } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { translateTestName } from "@/lib/translations";
 
 type ScoreEntry = {
   rank?: number;
@@ -91,19 +92,29 @@ export default function LeaderboardPage() {
       {/* Фильтры и Табы */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-surface border border-surface-border p-2 rounded-lg">
         {/* Выбор теста (Dropdown style) */}
-        <div className="flex gap-2 p-1 bg-black/20 rounded">
-          <button
-            onClick={() => setActiveTest("Reaction Time")}
-            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-bold transition ${activeTest === "Reaction Time" ? "bg-neon-green text-black" : "text-text-muted hover:text-white"}`}
-          >
-            <Zap className="w-4 h-4" /> Reaction Time
-          </button>
-          <button
-            onClick={() => setActiveTest("Sequence Memory")}
-            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-bold transition ${activeTest === "Sequence Memory" ? "bg-neon-green text-black" : "text-text-muted hover:text-white"}`}
-          >
-            <Grid className="w-4 h-4" /> Sequence Memory
-          </button>
+        <div className="flex flex-wrap gap-2 p-1 bg-black/20 rounded">
+          {[
+            "Reaction Time",
+            "Sequence Memory",
+            "Aim Trainer",
+            "Number Memory",
+            "Verbal Memory",
+            "Chimp Test",
+            "Typing Speed",
+            "Visual Memory",
+          ].map((testKey) => (
+            <button
+              key={testKey}
+              onClick={() => setActiveTest(testKey)}
+              className={`px-3 py-1.5 rounded text-xs font-bold transition whitespace-nowrap ${
+                activeTest === testKey
+                  ? "bg-neon-green text-black"
+                  : "text-text-muted hover:text-white"
+              }`}
+            >
+              {translateTestName(testKey)}
+            </button>
+          ))}
         </div>
 
         {/* Переключатель Global / Weekly (Пока визуал) */}

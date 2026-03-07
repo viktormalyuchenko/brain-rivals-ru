@@ -3,6 +3,7 @@ import { Zap, Play, Trophy, Globe, Activity } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import RotatingText from "@/components/RotatingText";
 import { Metadata } from "next";
+import { translateTestName } from "@/lib/translations";
 
 // Функция-помощник: превращает код страны в эмодзи-флаг
 const getFlagEmoji = (countryCode: string) => {
@@ -92,7 +93,9 @@ export default async function Home() {
             <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-text-muted uppercase">
               <Globe className="w-4 h-4 text-neon-cyan" /> Топ 8 : Live
             </div>
-            <div className="text-xs text-text-muted">Reaction Time</div>
+            <div className="text-xs text-text-muted">
+              {translateTestName("Reaction Time")}
+            </div>
           </div>
 
           {/* Заголовки таблицы */}

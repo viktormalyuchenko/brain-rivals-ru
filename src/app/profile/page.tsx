@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase"; // Подключаем базу
+import { translateTestName } from "@/lib/translations";
 
 interface HistoryItem {
   test: string;
@@ -226,7 +227,9 @@ export default function ProfilePage() {
                 className="bg-surface border border-surface-border p-5 rounded-lg flex items-center justify-between hover:border-text-muted transition"
               >
                 <div>
-                  <div className="font-bold text-lg">{item.test}</div>
+                  <div className="font-bold text-lg">
+                    {translateTestName(item.test)}
+                  </div>
                   <div className="text-sm text-text-muted">
                     {new Date(item.date).toLocaleString("ru-RU")}
                   </div>
