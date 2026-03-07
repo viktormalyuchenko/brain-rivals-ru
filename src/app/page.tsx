@@ -1,65 +1,142 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Zap, Play, Trophy, Globe, Activity } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
-export default function Home() {
+// Функция-помощник: превращает код страны в эмодзи-флаг
+const getFlagEmoji = (countryCode: string) => {
+  if (!countryCode || countryCode === "OTHER") return "🌍";
+  const codePoints = countryCode
+    .toUpperCase()
+    .split("")
+    .map((char) => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
+
+export default async function Home() {
+  // ДЕЛАЕМ ЗАПРОС К БАЗЕ ДАННЫХ ПРЯМО НА СЕРВЕРЕ!
+  // Берем 8 лучших (самых маленьких) результатов
+  const { data: topPlayers } = await supabase
+    .from("scores")
+    .select("player_name, score, country")
+    .eq("test_name", "Reaction Time")
+    .order("score", { ascending: true }) // ascending: true значит "от меньшего к большему"
+    .limit(8);
+
+  const players = topPlayers || [];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="max-w-7xl mx-auto px-4 py-16 lg:py-24">
+      <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        {/* ЛЕВАЯ ЧАСТЬ: Текст и кнопки */}
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-2 text-neon-green text-sm font-bold tracking-widest uppercase">
+            <Zap className="w-4 h-4" fill="currentColor" />
+            Измеряй. Соревнуйся. Побеждай.
+          </div>
+
+          <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight tracking-tight">
+            ПРОВЕРЬ СВОИ <br /> РЕФЛЕКСЫ. <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-green to-neon-cyan">
+              ОБОЙДИ ВЕСЬ МИР.
+            </span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="text-text-muted text-lg max-w-md">
+            Платформа когнитивных соревнований. Измерь свою скорость реакции,
+            память, логику и поднимись в глобальной таблице лидеров.
           </p>
+
+          <div className="flex flex-wrap gap-4 mt-4">
+            <Link
+              href="/tests/reaction"
+              className="bg-neon-green text-black px-6 py-3 flex items-center gap-2 font-bold rounded-sm hover:bg-white transition duration-300"
+            >
+              <Play className="w-5 h-5" fill="currentColor" /> НАЧАТЬ ТЕСТ
+            </Link>
+            <Link
+              href="/leaderboard"
+              className="border border-surface-border bg-surface px-6 py-3 flex items-center gap-2 font-bold rounded-sm hover:border-text-muted transition duration-300"
+            >
+              <Trophy className="w-5 h-5" /> РЕЙТИНГИ
+            </Link>
+          </div>
+
+          {/* Статистика */}
+          <div className="flex gap-8 mt-8 border-t border-surface-border pt-8">
+            <div>
+              <div className="flex items-center gap-2 text-text-muted text-xs uppercase mb-1">
+                <Activity className="w-3 h-3" /> Онлайн
+              </div>
+              <div className="text-2xl font-bold">1</div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 text-text-muted text-xs uppercase mb-1">
+                <Zap className="w-3 h-3" /> Результатов в базе
+              </div>
+              <div className="text-2xl font-bold">{players.length}</div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* ПРАВАЯ ЧАСТЬ: НАСТОЯЩАЯ Таблица лидеров */}
+        <div className="bg-surface border border-surface-border rounded-lg p-6 lg:ml-auto w-full max-w-md shadow-2xl relative overflow-hidden">
+          <div className="flex items-center justify-between mb-6 relative z-10">
+            <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-text-muted uppercase">
+              <Globe className="w-4 h-4 text-neon-cyan" /> Топ 8 : Live
+            </div>
+            <div className="text-xs text-text-muted">Reaction Time</div>
+          </div>
+
+          {/* Заголовки таблицы */}
+          <div className="grid grid-cols-[auto_1fr_auto] gap-4 text-xs text-text-muted font-bold uppercase mb-4 px-2 relative z-10">
+            <div>Ранг</div>
+            <div>Игрок</div>
+            <div className="text-right">Счет</div>
+          </div>
+
+          {/* НАСТОЯЩИЙ Список игроков из БД */}
+          <div className="flex flex-col gap-1 relative z-10">
+            {players.length === 0 ? (
+              <div className="text-center text-sm text-text-muted py-8">
+                Пока нет результатов. Станьте первым!
+              </div>
+            ) : (
+              players.map((player, index) => {
+                const rank = (index + 1).toString().padStart(2, "0");
+                const isTop3 = index < 3;
+
+                return (
+                  <div
+                    key={index}
+                    className={`grid grid-cols-[auto_1fr_auto] gap-4 items-center px-2 py-2 rounded-md ${index === 0 ? "bg-white/5 border border-white/10" : "hover:bg-white/5 transition"}`}
+                  >
+                    <div
+                      className={`text-sm font-bold w-6 ${isTop3 ? "text-neon-green" : "text-text-muted"}`}
+                    >
+                      {rank}
+                    </div>
+                    <div className="text-sm font-medium flex items-center gap-2">
+                      <span>{getFlagEmoji(player.country)}</span>
+                      {player.player_name || "Аноним"}
+                    </div>
+                    <div className="text-sm font-bold text-right text-text-muted">
+                      {player.score}{" "}
+                      <span className="text-[10px] font-normal">ms</span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <Link
+            href="/leaderboard"
+            className="block text-center text-xs text-text-muted mt-6 hover:text-white transition relative z-10"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            ПОКАЗАТЬ ПОЛНЫЙ РЕЙТИНГ →
+          </Link>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
