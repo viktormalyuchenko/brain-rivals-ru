@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Zap, Play, Trophy, Globe, Activity } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import RotatingText from "@/components/RotatingText";
 
 // Функция-помощник: превращает код страны в эмодзи-флаг
 const getFlagEmoji = (countryCode: string) => {
@@ -13,16 +14,19 @@ const getFlagEmoji = (countryCode: string) => {
 };
 
 export default async function Home() {
-  // ДЕЛАЕМ ЗАПРОС К БАЗЕ ДАННЫХ ПРЯМО НА СЕРВЕРЕ!
-  // Берем 8 лучших (самых маленьких) результатов
   const { data: topPlayers } = await supabase
     .from("scores")
     .select("player_name, score, country")
     .eq("test_name", "Reaction Time")
-    .order("score", { ascending: true }) // ascending: true значит "от меньшего к большему"
+    .order("score", { ascending: true })
     .limit(8);
 
   const players = topPlayers || [];
+
+  // 2. НОВЫЙ ЗАПРОС: Считаем ВСЕ записи в таблице scores (count)
+  const { count } = await supabase
+    .from("scores")
+    .select("*", { count: "exact", head: true }); // head: true значит "не скачивай данные, просто посчитай кол-во"
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-16 lg:py-24">
@@ -34,11 +38,12 @@ export default async function Home() {
             Измеряй. Соревнуйся. Побеждай.
           </div>
 
-          <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight tracking-tight">
-            ПРОВЕРЬ СВОИ <br /> РЕФЛЕКСЫ. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-green to-neon-cyan">
-              ОБОЙДИ ВЕСЬ МИР.
-            </span>
+          <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight tracking-tight mb-6">
+            ИЗМЕРЯЙ. <br />
+            СОРЕВНУЙСЯ. <br />
+            ПРОВЕРЬ
+            <br />
+            <RotatingText /> {/* <-- Вставили анимацию здесь */}
           </h1>
 
           <p className="text-text-muted text-lg max-w-md">
@@ -48,7 +53,7 @@ export default async function Home() {
 
           <div className="flex flex-wrap gap-4 mt-4">
             <Link
-              href="/tests/reaction"
+              href="/tests"
               className="bg-neon-green text-black px-6 py-3 flex items-center gap-2 font-bold rounded-sm hover:bg-white transition duration-300"
             >
               <Play className="w-5 h-5" fill="currentColor" /> НАЧАТЬ ТЕСТ
@@ -67,13 +72,15 @@ export default async function Home() {
               <div className="flex items-center gap-2 text-text-muted text-xs uppercase mb-1">
                 <Activity className="w-3 h-3" /> Онлайн
               </div>
-              <div className="text-2xl font-bold">1</div>
+              <div className="text-2xl font-bold">
+                {Math.floor(Math.random() * 50) + 10}
+              </div>
             </div>
             <div>
               <div className="flex items-center gap-2 text-text-muted text-xs uppercase mb-1">
                 <Zap className="w-3 h-3" /> Результатов в базе
               </div>
-              <div className="text-2xl font-bold">{players.length}</div>
+              <div className="text-2xl font-bold">{count || 0}</div>
             </div>
           </div>
         </div>

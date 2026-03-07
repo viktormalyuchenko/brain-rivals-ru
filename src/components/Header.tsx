@@ -18,7 +18,7 @@ export default function Header() {
         {/* Навигация (Центр) - Скрыта на мобильных */}
         <nav className="hidden md:flex items-center gap-8 text-text-muted font-medium">
           <Link
-            href="/tests/reaction"
+            href="/tests"
             className="hover:text-white transition flex items-center gap-2"
           >
             <Activity className="w-4 h-4" /> ТЕСТЫ

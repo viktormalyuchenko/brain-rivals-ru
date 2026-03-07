@@ -20,6 +20,18 @@ interface HistoryItem {
   date: string;
 }
 
+const getUnit = (testName: string) => {
+  if (testName === "Reaction Time") return "мс";
+  if (testName === "Aim Trainer") return "мс";
+  if (testName === "Sequence Memory") return "ур";
+  if (testName === "Number Memory") return "цифр";
+  if (testName === "Verbal Memory") return "слов";
+  if (testName === "Chimp Test") return "цифр";
+  if (testName === "Typing Speed") return "WPM";
+  if (testName === "Visual Memory") return "lvl";
+  return "";
+};
+
 export default function ProfilePage() {
   const router = useRouter();
 
@@ -223,7 +235,7 @@ export default function ProfilePage() {
                   <div className="text-2xl font-extrabold text-neon-green">
                     {item.score}{" "}
                     <span className="text-sm font-normal text-text-muted">
-                      ms
+                      {getUnit(item.test)}
                     </span>
                   </div>
                   <div className="text-xs font-bold text-[#cd7f32] uppercase tracking-widest bg-[#cd7f32]/10 inline-block px-2 py-1 rounded mt-1">
