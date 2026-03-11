@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Brain, Activity, Trophy, User } from "lucide-react";
+import { Brain, Activity, Trophy, User, BookOpen } from "lucide-react";
 import AuthNavigation from "./AuthNavigation"; // Импортируем наш новый компонент
 
 export default function Header() {
@@ -34,6 +34,12 @@ export default function Header() {
             className="hover:text-white transition flex items-center gap-2"
           >
             <User className="w-4 h-4" /> ПРОФИЛЬ
+          </Link>
+          <Link
+            href="/blog"
+            className="hover:text-white transition flex items-center gap-2"
+          >
+            <BookOpen className="w-4 h-4" /> БЛОГ
           </Link>
         </nav>
 
