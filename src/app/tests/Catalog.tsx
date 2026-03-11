@@ -141,6 +141,19 @@ const TESTS: TestCard[] = [
     active: true, // <--- ВКЛЮЧАЕМ
     input: "Клик мышью",
   },
+  {
+    id: "acuity",
+    title: "Острота зрения",
+    description:
+      "Определите, в какую сторону открыто кольцо. С каждым уровнем оно становится меньше.",
+    icon: Eye, // Импортируй Eye из lucide-react
+    category: "ВОСПРИЯТИЕ",
+    plays: "580K",
+    avgScore: "20/20",
+    link: "/tests/visual-acuity",
+    active: true,
+    input: "Стрелки или Клик",
+  },
 ];
 
 export default function TestsCatalog() {

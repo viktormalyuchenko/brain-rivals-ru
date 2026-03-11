@@ -7,6 +7,7 @@ export const TEST_NAMES: Record<string, string> = {
   "Chimp Test": "Тест Шимпанзе",
   "Typing Speed": "Скорость печати",
   "Visual Memory": "Визуальная память",
+  "Visual Acuity": "Острота зрения",
 };
 
 // Функция-помощник: если перевода нет, вернет оригинал

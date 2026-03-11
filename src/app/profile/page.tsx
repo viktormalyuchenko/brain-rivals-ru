@@ -83,6 +83,12 @@ const TEST_CONFIG: Record<
     isLowerBetter: false,
     tiers: { elite: 18, diamond: 14, gold: 9, silver: 5 },
   },
+  "Visual Acuity": {
+    category: "Восприятие",
+    unit: "ур.",
+    isLowerBetter: false,
+    tiers: { elite: 12, diamond: 10, gold: 7, silver: 4 },
+  },
 };
 
 const ALL_GAMES_LIST = Object.keys(TEST_CONFIG);
@@ -221,7 +227,12 @@ export default function ProfilePage() {
   });
 
   // 3. Микс активности (какие категории играл)
-  const categoryCounts = { Реакция: 0, Память: 0, Точность: 0 };
+  const categoryCounts: Record<string, number> = {
+    Реакция: 0,
+    Память: 0,
+    Точность: 0,
+    Восприятие: 0,
+  };
   let totalValidTests = 0;
   history.forEach((item) => {
     const cat = TEST_CONFIG[item.test]?.category as keyof typeof categoryCounts;
@@ -532,6 +543,7 @@ export default function ProfilePage() {
                   "Chimp Test": "chimp",
                   "Typing Speed": "typing",
                   "Visual Memory": "visual-memory",
+                  "Visual Acuity": "visual-acuity",
                 };
                 const href = `/tests/${linkMap[testKey] || ""}`;
 
