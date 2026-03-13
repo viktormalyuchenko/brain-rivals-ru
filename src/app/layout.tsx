@@ -15,10 +15,6 @@ export const metadata: Metadata = {
     yandex: "3af9283d8b2ebd88",
     google: "Ihz5Cd5vkNkVuh36pZjbyhECtbKBY5oZu7pMs4t5kXU",
   },
-  // Open Graph картинка (для красивых ссылок в ТикТоке/Телеграме)
-  openGraph: {
-    images: ["/og-image.jpg"], // Нужно будет добавить картинку в папку public
-  },
 };
 
 export default function RootLayout({
