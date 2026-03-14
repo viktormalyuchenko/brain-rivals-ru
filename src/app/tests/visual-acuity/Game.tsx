@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { saveScoreToDB } from "@/lib/saveScore";
 
 type GameState = "intro" | "playing" | "gameover";
 type Direction = "up" | "right" | "down" | "left";
@@ -86,25 +87,18 @@ export default function VisualAcuityGame() {
           }, 50); // Черный экран держится 150мс
         }, 150); // Задержка зеленого свечения
       } else {
-        // ОШИБКА
         setFeedback("wrong");
-
         setTimeout(() => {
           const newStrikes = strikes + 1;
           if (newStrikes >= 3) {
             setGameState("gameover");
-          } else {
-            setStrikes(newStrikes);
-            setCorrectInRow(0);
-            setFeedback(null);
 
-            setIsBlinking(true);
-            setTimeout(() => {
-              generateNextRound();
-              setIsBlinking(false);
-            }, 50);
+            // СОХРАНЯЕМ
+            saveScoreToDB("Visual Acuity", level);
+          } else {
+            // ...
           }
-        }, 250); // Задержка красного свечения
+        }, 250);
       }
     },
     [
@@ -331,18 +325,21 @@ export default function VisualAcuityGame() {
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 w-full mb-8">
+          {/* Главная кнопка - рестарт */}
           <button
             onClick={startGame}
             className="flex-1 min-w-[160px] bg-neon-green text-black px-6 py-3 font-bold rounded-sm hover:bg-white transition flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-4 h-4" /> ЕЩЁ РАЗ
           </button>
-          <button
-            onClick={saveResult}
-            className="flex-1 min-w-[160px] border border-surface-border bg-surface px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2"
+
+          {/* Второстепенная - назад в каталог */}
+          <Link
+            href="/tests"
+            className="flex-1 min-w-[160px] border border-surface-border bg-surface px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2 text-text-muted"
           >
-            <Save className="w-4 h-4" /> СОХРАНИТЬ
-          </button>
+            ДРУГИЕ ТЕСТЫ
+          </Link>
         </div>
       </div>
     );

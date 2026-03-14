@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { Metadata } from "next";
+import { saveScoreToDB } from "@/lib/saveScore";
 
 type GameState =
   | "intro"
@@ -100,6 +101,12 @@ export default function ReactionTest() {
           startRoundTimeout();
         } else {
           setGameState("results");
+
+          // СЧИТАЕМ И СОХРАНЯЕМ
+          const finalAverage = Math.round(
+            newTimes.reduce((a, b) => a + b, 0) / newTimes.length,
+          );
+          saveScoreToDB("Reaction Time", finalAverage);
         }
       }, 1500);
     }
@@ -130,54 +137,6 @@ export default function ReactionTest() {
     setRound(1);
     setTimes([]);
     setCurrentRoundTime(null);
-  };
-
-  const saveToProfile = async () => {
-    const average =
-      times.length > 0
-        ? Math.round(times.reduce((a, b) => a + b, 0) / times.length)
-        : 0;
-
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        // Достаем имя и страну, которые мы сохранили при регистрации
-        const playerName = session.user.user_metadata?.full_name || "Аноним";
-        const userCountry = session.user.user_metadata?.country || "RU";
-
-        const { error } = await supabase.from("scores").insert([
-          {
-            user_id: session.user.id,
-            test_name: "Reaction Time",
-            score: average,
-            player_name: playerName, // Отправляем имя
-            country: userCountry, // Отправляем страну
-          },
-        ]);
-
-        if (error) throw error;
-      } else {
-        const newRecord = {
-          test: "Reaction Time",
-          score: average,
-          date: new Date().toISOString(),
-        };
-        const existingHistory = JSON.parse(
-          localStorage.getItem("guest_history") || "[]",
-        );
-        localStorage.setItem(
-          "guest_history",
-          JSON.stringify([newRecord, ...existingHistory]),
-        );
-      }
-
-      router.push("/profile");
-    } catch (err) {
-      console.error("Ошибка при сохранении:", err);
-    }
   };
 
   const averageTime =
@@ -311,19 +270,22 @@ export default function ReactionTest() {
           ))}
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 w-full">
+        <div className="flex flex-wrap justify-center gap-4 w-full mb-8">
+          {/* Главная кнопка - рестарт */}
           <button
             onClick={resetGame}
-            className="flex-1 md:flex-none bg-surface border border-surface-border px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2"
+            className="flex-1 min-w-[160px] bg-neon-green text-black px-6 py-3 font-bold rounded-sm hover:bg-white transition flex items-center justify-center gap-2"
           >
-            <RotateCcw className="w-4 h-4" /> ПОПРОБОВАТЬ СНОВА
+            <RotateCcw className="w-4 h-4" /> ЕЩЁ РАЗ
           </button>
-          <button
-            onClick={saveToProfile}
-            className="flex-1 md:flex-none bg-neon-green text-black px-6 py-3 font-bold rounded-sm hover:bg-white transition flex items-center justify-center gap-2"
+
+          {/* Второстепенная - назад в каталог */}
+          <Link
+            href="/tests"
+            className="flex-1 min-w-[160px] border border-surface-border bg-surface px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2 text-text-muted"
           >
-            СОХРАНИТЬ В ПРОФИЛЬ
-          </button>
+            ДРУГИЕ ТЕСТЫ
+          </Link>
         </div>
       </div>
     );

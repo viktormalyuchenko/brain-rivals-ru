@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { Metadata } from "next";
+import { saveScoreToDB } from "@/lib/saveScore";
 
 type GameState =
   | "intro"
@@ -130,6 +131,9 @@ export default function SequenceMemory() {
       setTimeout(() => {
         setGameState("gameover");
         setActiveTile(null);
+
+        // СОХРАНЯЕМ (результат — текущий уровень)
+        saveScoreToDB("Sequence Memory", level);
       }, 500);
     }
   };
@@ -146,44 +150,6 @@ export default function SequenceMemory() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [sequence, userStep]); // Зависимости обновляют замыкание
-
-  const saveResult = async () => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        const playerName = session.user.user_metadata?.full_name || "Аноним";
-        const userCountry = session.user.user_metadata?.country || "RU";
-        await supabase.from("scores").insert([
-          {
-            user_id: session.user.id,
-            test_name: "Sequence Memory",
-            score: level,
-            player_name: playerName,
-            country: userCountry,
-          },
-        ]);
-      } else {
-        const newRecord = {
-          test: "Sequence Memory",
-          score: level,
-          date: new Date().toISOString(),
-        };
-        const existingHistory = JSON.parse(
-          localStorage.getItem("guest_history") || "[]",
-        );
-        localStorage.setItem(
-          "guest_history",
-          JSON.stringify([newRecord, ...existingHistory]),
-        );
-      }
-      router.push("/profile");
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   // --- РЕНДЕР ---
 
@@ -233,19 +199,22 @@ export default function SequenceMemory() {
           </div>
           <div className="text-7xl font-extrabold text-white">{level}</div>
         </div>
-        <div className="flex flex-wrap justify-center gap-4 w-full mt-4">
+        <div className="flex flex-wrap justify-center gap-4 w-full mb-8">
+          {/* Главная кнопка - рестарт */}
           <button
             onClick={startCountdown}
-            className="flex-1 md:flex-none bg-surface border border-surface-border px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2"
+            className="flex-1 min-w-[160px] bg-neon-green text-black px-6 py-3 font-bold rounded-sm hover:bg-white transition flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-4 h-4" /> ЕЩЁ РАЗ
           </button>
-          <button
-            onClick={saveResult}
-            className="flex-1 md:flex-none bg-neon-green text-black px-6 py-3 font-bold rounded-sm hover:bg-white transition flex items-center justify-center gap-2"
+
+          {/* Второстепенная - назад в каталог */}
+          <Link
+            href="/tests"
+            className="flex-1 min-w-[160px] border border-surface-border bg-surface px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2 text-text-muted"
           >
-            СОХРАНИТЬ
-          </button>
+            ДРУГИЕ ТЕСТЫ
+          </Link>
         </div>
       </div>
     );

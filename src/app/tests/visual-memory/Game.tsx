@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { Metadata } from "next";
+import { saveScoreToDB } from "@/lib/saveScore";
 
 type GameState = "intro" | "showing" | "playing" | "gameover";
 
@@ -107,46 +108,8 @@ export default function VisualMemory() {
         // Показываем правильные ответы перед Game Over
         setGameState("intro"); // Хак чтобы перерисовать, но сразу gameover
         setTimeout(() => setGameState("gameover"), 500);
+        saveScoreToDB("Visual Memory", level);
       }
-    }
-  };
-
-  const saveResult = async () => {
-    try {
-      const score = level; // Результат - уровень
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        const playerName = session.user.user_metadata?.full_name || "Аноним";
-        const userCountry = session.user.user_metadata?.country || "RU";
-        await supabase.from("scores").insert([
-          {
-            user_id: session.user.id,
-            test_name: "Visual Memory",
-            score: score,
-            player_name: playerName,
-            country: userCountry,
-          },
-        ]);
-      } else {
-        const newRecord = {
-          test: "Visual Memory",
-          score: score,
-          date: new Date().toISOString(),
-        };
-        const existingHistory = JSON.parse(
-          localStorage.getItem("guest_history") || "[]",
-        );
-        localStorage.setItem(
-          "guest_history",
-          JSON.stringify([newRecord, ...existingHistory]),
-        );
-      }
-      router.push("/profile");
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -278,18 +241,21 @@ export default function VisualMemory() {
         )}
 
         <div className="flex flex-wrap justify-center gap-4 w-full mb-8">
+          {/* Главная кнопка - рестарт */}
           <button
             onClick={startGame}
             className="flex-1 min-w-[160px] bg-neon-green text-black px-6 py-3 font-bold rounded-sm hover:bg-white transition flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-4 h-4" /> ЕЩЁ РАЗ
           </button>
-          <button
-            onClick={saveResult}
-            className="flex-1 min-w-[160px] border border-surface-border bg-surface px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2"
+
+          {/* Второстепенная - назад в каталог */}
+          <Link
+            href="/tests"
+            className="flex-1 min-w-[160px] border border-surface-border bg-surface px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2 text-text-muted"
           >
-            <Save className="w-4 h-4" /> СОХРАНИТЬ
-          </button>
+            ДРУГИЕ ТЕСТЫ
+          </Link>
         </div>
       </div>
     );
