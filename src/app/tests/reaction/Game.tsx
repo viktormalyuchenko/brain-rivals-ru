@@ -13,6 +13,10 @@ import {
   HelpCircle,
   Play,
   Keyboard,
+  BarChart3,
+  LinkIcon,
+  Share2,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,6 +40,7 @@ export default function ReactionTest() {
   const [round, setRound] = useState(1);
   const [times, setTimes] = useState<number[]>([]);
   const [currentRoundTime, setCurrentRoundTime] = useState<number | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
 
   // Refs для доступа к актуальному state внутри слушателя клавиатуры
   const stateRef = useRef(gameState);
@@ -335,74 +340,181 @@ export default function ReactionTest() {
 
   // --- 2. ЭКРАН РЕЗУЛЬТАТОВ (Финал) ---
   if (gameState === "results") {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-12 flex flex-col items-center">
-        <Trophy className="w-16 h-16 text-neon-green mb-6" />
-        <h2 className="text-3xl font-extrabold mb-2 uppercase tracking-tight">
-          Тест завершен!
-        </h2>
-        <p className="text-text-muted mb-10">Результаты теста на реакцию</p>
+    // Получаем финальный средний результат (если он не передается из стейта, используем расчет)
+    const finalAverage =
+      times.length > 0
+        ? Math.round(times.reduce((a, b) => a + b, 0) / times.length)
+        : 0;
+    const bestTime = times.length > 0 ? Math.min(...times) : 0;
 
-        <div className="w-full bg-surface border border-neon-green/30 rounded-xl p-8 text-center mb-6 relative overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-[#cd7f32] text-black text-[10px] font-bold px-3 py-1 rounded-b-md uppercase tracking-widest">
-            Бронза
+    // Расчет рангов (Меньше = лучше)
+    const getRankInfo = (val: number) => {
+      if (val <= 180 && val > 0)
+        return { name: "Элита", color: "bg-purple-500 text-white", next: null };
+      if (val <= 220 && val > 0)
+        return { name: "Алмаз", color: "bg-cyan-400 text-black", next: 180 };
+      if (val <= 300 && val > 0)
+        return { name: "Золото", color: "bg-yellow-500 text-black", next: 220 };
+      if (val <= 400 && val > 0)
+        return { name: "Серебро", color: "bg-gray-300 text-black", next: 300 };
+      return { name: "Бронза", color: "bg-[#cd7f32] text-black", next: 400 };
+    };
+
+    const rank = getRankInfo(finalAverage);
+    // Чем меньше мс, тем выше процент (245мс = ~50%)
+    const percentile = Math.min(
+      99,
+      Math.max(1, Math.floor(100 - ((finalAverage - 150) / (400 - 150)) * 100)),
+    );
+
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12 flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <Trophy className="w-16 h-16 text-neon-green mb-4" />
+        <h2 className="text-4xl font-extrabold mb-2 uppercase tracking-tight text-center">
+          ТЕСТ ЗАВЕРШЕН!
+        </h2>
+        <p className="text-text-muted mb-8">Результаты: Скорость реакции</p>
+
+        {/* ГЛАВНАЯ КАРТОЧКА */}
+        <div className="w-full bg-surface border border-neon-green/30 rounded-xl p-8 text-center mb-6 relative overflow-hidden shadow-2xl">
+          <div
+            className={`absolute top-0 left-1/2 -translate-x-1/2 text-[10px] font-bold px-4 py-1.5 rounded-b-md uppercase tracking-widest ${rank.color}`}
+          >
+            {rank.name}
           </div>
-          <div className="text-6xl md:text-7xl font-extrabold mt-4 mb-2">
-            {averageTime}{" "}
+          <div className="text-7xl font-extrabold mt-6 mb-2 text-white">
+            {finalAverage}{" "}
             <span className="text-2xl font-medium text-text-muted">ms</span>
           </div>
-          <p className="text-text-muted">Ваше среднее время реакции</p>
+          <p className="text-text-muted text-sm uppercase tracking-widest">
+            Среднее время
+          </p>
+          <div className="mt-6 inline-flex border border-surface-border bg-background px-4 py-2 rounded-full text-sm">
+            <span className="text-text-muted">Топ</span>{" "}
+            <span className="text-neon-green font-bold mx-1">
+              {percentile}%
+            </span>{" "}
+            <span className="text-text-muted">в мире</span>
+          </div>
         </div>
 
-        {/* Статистика: Лучшее время и Раунды */}
-        <div className="grid grid-cols-2 gap-4 w-full mb-6">
-          <div className="bg-surface border border-surface-border p-6 rounded-xl flex flex-col items-center justify-center">
-            <Zap className="text-neon-green w-5 h-5 mb-2" />
-            <div className="text-2xl font-bold">
-              {bestTime}
-              <span className="text-sm text-text-muted font-normal">ms</span>
+        {/* ТАК БЛИЗКО */}
+        {rank.next && (
+          <div className="w-full bg-[#3a2a1a] border border-yellow-600/50 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <div className="mt-1">
+              <AlertTriangle className="w-5 h-5 text-yellow-500" />
             </div>
-            <div className="text-xs text-text-muted uppercase tracking-widest mt-1">
-              Лучшее время
+            <div>
+              <div className="text-yellow-500 font-bold text-sm uppercase mb-1">
+                Так близко!
+              </div>
+              <div className="text-sm text-yellow-100/80">
+                Ускорьтесь всего на{" "}
+                <span className="text-white font-bold">
+                  {finalAverage - rank.next} мс
+                </span>{" "}
+                до ранга{" "}
+                <span className="font-bold text-white uppercase">
+                  {getRankInfo(rank.next).name}
+                </span>
+                !
+              </div>
             </div>
           </div>
-          <div className="bg-surface border border-surface-border p-6 rounded-xl flex flex-col items-center justify-center">
-            <Activity className="text-neon-cyan w-5 h-5 mb-2" />
+        )}
+
+        {/* СЕТКА СТАТИСТИКИ */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-6">
+          <div className="bg-surface border border-surface-border p-5 text-center rounded-xl">
+            <Zap className="w-5 h-5 text-neon-green mx-auto mb-2" />
+            <div className="text-2xl font-bold">
+              {bestTime}{" "}
+              <span className="text-sm text-text-muted font-normal">ms</span>
+            </div>
+            <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">
+              Лучший клик
+            </div>
+          </div>
+          <div className="bg-surface border border-surface-border p-5 text-center rounded-xl">
+            <Activity className="w-5 h-5 text-neon-cyan mx-auto mb-2" />
             <div className="text-2xl font-bold">{TOTAL_ROUNDS}</div>
-            <div className="text-xs text-text-muted uppercase tracking-widest mt-1">
+            <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">
               Раундов
             </div>
           </div>
-        </div>
-
-        {/* Список всех попыток */}
-        <div className="w-full bg-surface border border-surface-border p-4 rounded-xl mb-8 flex flex-wrap justify-center gap-2">
-          {times.map((t, i) => (
-            <div
-              key={i}
-              className="bg-background border border-surface-border px-3 py-1 rounded text-sm text-text-muted"
-            >
-              #{i + 1}: <span className="text-white font-medium">{t}ms</span>
+          <div className="bg-surface border border-surface-border p-5 text-center rounded-xl">
+            <BarChart3 className="w-5 h-5 text-purple-500 mx-auto mb-2" />
+            <div className="text-2xl font-bold">
+              245{" "}
+              <span className="text-sm text-text-muted font-normal">ms</span>
             </div>
-          ))}
+            <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">
+              Среднее в мире
+            </div>
+          </div>
         </div>
 
+        {/* СРАВНЕНИЕ (Прогресс бар) */}
+        <div className="w-full bg-surface border border-surface-border p-6 rounded-xl mb-8">
+          <div className="text-xs text-text-muted uppercase tracking-widest mb-4">
+            Сравнение
+          </div>
+          <div className="flex items-center justify-between text-sm mb-2 font-bold">
+            <span className="text-neon-green">{finalAverage} ms</span>
+            <span className="text-text-muted text-xs font-normal">VS</span>
+            <span className="text-white">245 ms (AVG)</span>
+          </div>
+          <div className="h-2 bg-background rounded-full overflow-hidden flex flex-row-reverse">
+            {/* Для реакции чем меньше, тем бар должен быть "полнее" зеленого. */}
+            <div
+              style={{ width: `${Math.min(100, (245 / finalAverage) * 50)}%` }}
+              className="bg-neon-green h-full"
+            ></div>
+            <div className="bg-surface-border h-full flex-grow"></div>
+          </div>
+        </div>
+
+        {/* КНОПКИ ДЕЙСТВИЙ */}
         <div className="flex flex-wrap justify-center gap-4 w-full mb-8">
-          {/* Главная кнопка - рестарт */}
           <button
             onClick={resetGame}
-            className="flex-1 min-w-[160px] bg-neon-green text-black px-6 py-3 font-bold rounded-sm hover:bg-white transition flex items-center justify-center gap-2"
+            className="flex-1 min-w-[160px] bg-neon-green text-black px-6 py-3 font-bold rounded-sm hover:bg-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-4 h-4" /> ЕЩЁ РАЗ
           </button>
-
-          {/* Второстепенная - назад в каталог */}
           <Link
             href="/tests"
             className="flex-1 min-w-[160px] border border-surface-border bg-surface px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2 text-text-muted"
           >
             ДРУГИЕ ТЕСТЫ
           </Link>
+        </div>
+
+        {/* ШАРИНГ */}
+        <div className="w-full bg-gradient-to-r from-green-900/20 to-emerald-900/20 border border-white/5 rounded-xl p-6 text-center">
+          <h3 className="text-lg font-bold text-white mb-2 flex items-center justify-center gap-2">
+            <Share2 className="w-5 h-5 text-neon-green" /> Брось вызов другу
+          </h3>
+          <p className="text-sm text-text-muted mb-4">
+            Моя скорость реакции ${finalAverage} мс. Сможешь быстрее?
+          </p>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(
+                `Моя скорость реакции ${finalAverage} мс! Попробуй обогнать меня на ${window.location.origin}`,
+              );
+              setIsCopied(true);
+              setTimeout(() => setIsCopied(false), 2000);
+            }}
+            className={`text-white px-8 py-2 rounded text-sm font-bold transition flex items-center gap-2 mx-auto ${isCopied ? "bg-green-500 text-black" : "bg-surface border border-surface-border hover:bg-white/10"}`}
+          >
+            {isCopied ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <LinkIcon className="w-4 h-4" />
+            )}
+            {isCopied ? "СКОПИРОВАНО!" : "СКОПИРОВАТЬ ССЫЛКУ"}
+          </button>
         </div>
       </div>
     );

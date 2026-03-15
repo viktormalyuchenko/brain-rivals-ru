@@ -13,6 +13,11 @@ import {
   Heart,
   AlertTriangle,
   Check,
+  ListChecks,
+  Activity,
+  BarChart3,
+  Share2,
+  LinkIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -29,6 +34,7 @@ export default function VisualMemory() {
   const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(3);
   const [gridSize, setGridSize] = useState(3); // Размер сетки (3x3, 4x4...)
+  const [isCopied, setIsCopied] = useState(false);
 
   // Логика плиток
   const [pattern, setPattern] = useState<number[]>([]); // Какие плитки горят (их ID)
@@ -136,49 +142,141 @@ export default function VisualMemory() {
       <div className="max-w-4xl mx-auto px-4 py-12">
         <Link
           href="/tests"
-          className="flex items-center gap-2 text-text-muted hover:text-white transition w-fit mb-8"
+          className="flex items-center gap-2 text-text-muted hover:text-white transition w-fit mb-8 text-sm"
         >
           <ArrowLeft className="w-4 h-4" /> Назад к тестам
         </Link>
+
+        {/* ШАПКА */}
         <div className="flex flex-col items-center text-center mb-12">
-          <div className="w-16 h-16 rounded-full border border-surface-border bg-surface flex items-center justify-center mb-6">
+          <div className="w-16 h-16 rounded-full border border-surface-border bg-surface flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(0,255,136,0.1)]">
             <Grid className="w-8 h-8 text-neon-green" />
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4 uppercase tracking-tight">
-            Visual Memory
+            Визуальная память
           </h1>
-          <p className="text-text-muted text-lg max-w-xl">
-            Запоминайте расположение подсвеченных квадратов. Сетка будет
-            увеличиваться с каждым уровнем.
+          <p className="text-text-muted text-lg max-w-xl mb-6">
+            Запоминайте расположение закрашенных квадратов. С каждым уровнем
+            сетка увеличивается.
           </p>
+          <div className="flex gap-4 text-xs font-bold text-text-muted uppercase tracking-widest">
+            <span>
+              Сложность: <span className="text-white">Средняя</span>
+            </span>
+            <span>•</span>
+            <span>
+              Среднее: <span className="text-white">Сетка 5x5</span>
+            </span>
+          </div>
         </div>
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-surface border border-surface-border p-6 rounded-lg">
-            <div className="flex items-center gap-2 text-neon-green font-bold mb-4 uppercase text-sm">
+
+        {/* КАРТОЧКИ УПРАВЛЕНИЯ */}
+        <div className="grid md:grid-cols-2 gap-4 mb-8">
+          <div className="bg-surface border border-surface-border p-6 rounded-xl">
+            <div className="flex items-center gap-2 text-neon-green font-bold mb-3 uppercase text-sm tracking-widest">
               <HelpCircle className="w-4 h-4" /> Как это работает
             </div>
             <p className="text-text-muted text-sm leading-relaxed">
-              Несколько квадратов загорятся белым. Запомните их. Когда они
-              погаснут, нажмите на них.
+              Несколько квадратов на короткое время загорятся белым светом.
+              Запомните их расположение и кликните по ним после того, как они
+              погаснут.
             </p>
           </div>
-          <div className="bg-surface border border-surface-border p-6 rounded-lg">
-            <div className="flex items-center gap-2 text-neon-green font-bold mb-4 uppercase text-sm">
-              <MousePointer className="w-4 h-4" /> Правила
+          <div className="bg-surface border border-surface-border p-6 rounded-xl">
+            <div className="flex items-center gap-2 text-neon-green font-bold mb-3 uppercase text-sm tracking-widest">
+              <MousePointer className="w-4 h-4" /> Управление
             </div>
             <p className="text-text-muted text-sm leading-relaxed">
-              Каждая ошибка отнимает 1 жизнь. У вас всего 3 жизни. Постарайтесь
-              пройти как можно дальше.
+              Только клик мышью или нажатие на экран.
+              <br />
+              <span className="text-xs opacity-70 mt-1 block">
+                У вас есть 3 жизни на всю игру.
+              </span>
             </p>
           </div>
         </div>
-        <div className="flex justify-center">
+
+        {/* КНОПКА СТАРТА */}
+        <div className="flex flex-col items-center justify-center mb-16 border-b border-surface-border pb-16">
           <button
             onClick={startGame}
-            className="bg-neon-green text-black px-12 py-4 rounded-sm font-extrabold text-lg flex items-center gap-2 hover:bg-white transition duration-300"
+            className="bg-neon-green text-black px-16 py-5 rounded-sm font-extrabold text-xl flex items-center gap-2 hover:bg-white hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,136,0.3)] mb-4"
           >
-            <Play className="w-5 h-5" fill="currentColor" /> НАЧАТЬ ТЕСТ
+            <Play className="w-6 h-6" fill="currentColor" /> НАЧАТЬ ТЕСТ
           </button>
+        </div>
+
+        {/* НИЖНИЙ SEO БЛОК */}
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="bg-black/20 border border-surface-border p-4 rounded-lg text-center">
+              <div className="text-[10px] text-text-muted uppercase tracking-widest mb-1">
+                Метрика
+              </div>
+              <div className="font-bold text-white text-sm">Уровень сетки</div>
+            </div>
+            <div className="bg-black/20 border border-surface-border p-4 rounded-lg text-center">
+              <div className="text-[10px] text-text-muted uppercase tracking-widest mb-1">
+                Среднее
+              </div>
+              <div className="font-bold text-white text-sm">Сетка 5x5</div>
+            </div>
+            <div className="bg-black/20 border border-surface-border p-4 rounded-lg text-center">
+              <div className="text-[10px] text-text-muted uppercase tracking-widest mb-1">
+                Сложность
+              </div>
+              <div className="font-bold text-white text-sm">Средняя</div>
+            </div>
+            <div className="bg-black/20 border border-surface-border p-4 rounded-lg text-center">
+              <div className="text-[10px] text-text-muted uppercase tracking-widest mb-1">
+                Сыграно
+              </div>
+              <div className="font-bold text-white text-sm">520K</div>
+            </div>
+          </div>
+
+          <div className="bg-surface border border-surface-border p-6 md:p-8 rounded-xl">
+            <h2 className="text-neon-green font-bold mb-4 uppercase text-sm tracking-widest flex items-center gap-2">
+              <Activity className="w-4 h-4" /> Что проверяет тест визуальной
+              памяти?
+            </h2>
+            <div className="text-text-muted text-sm leading-relaxed space-y-4">
+              <p>
+                Тест измеряет вашу <strong>пространственную память</strong> и
+                способность к распознаванию визуальных паттернов. Это навык
+                удержания в уме информации о расположении объектов в
+                пространстве.
+              </p>
+              <p>
+                Визуальная память критически важна для повседневной жизни:
+                навигации в городе без карты, узнавания лиц в толпе и
+                запоминания сложных планировок (например, интерфейсов программ
+                или карт в видеоиграх).
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-surface border border-surface-border p-6 md:p-8 rounded-xl">
+            <h2 className="text-neon-green font-bold mb-3 uppercase text-sm tracking-widest flex items-center gap-2">
+              <ListChecks className="w-4 h-4" /> Как запоминать лучше
+            </h2>
+            <ol className="text-text-muted text-sm space-y-3 list-decimal list-inside marker:text-neon-green marker:font-bold">
+              <li>
+                <strong>Ищите формы:</strong> Не пытайтесь запомнить каждый
+                квадрат отдельно. Ищите в подсвеченных клетках геометрические
+                фигуры (буква Г, крест, квадрат).
+              </li>
+              <li>
+                <strong>Систематизируйте:</strong> Начинайте сканировать сетку с
+                левого верхнего угла, как при чтении книги.
+              </li>
+              <li>
+                <strong>Группируйте (Чанкинг):</strong> Разбейте большую сетку
+                на логические зоны (левая часть, центр, правый нижний угол) и
+                запоминайте их как отдельные блоки.
+              </li>
+            </ol>
+          </div>
         </div>
       </div>
     );
@@ -186,15 +284,16 @@ export default function VisualMemory() {
 
   // --- ЭКРАН GAME OVER ---
   if (gameState === "gameover") {
-    // В этой игре Score обычно считается как Level
     return (
-      <div className="max-w-3xl mx-auto px-4 py-12 flex flex-col items-center">
+      <div className="max-w-3xl mx-auto px-4 py-12 flex flex-col items-center animate-in fade-in duration-500">
         <Trophy className="w-16 h-16 text-neon-green mb-4" />
         <h2 className="text-4xl font-extrabold mb-2 uppercase tracking-tight text-center">
           ТЕСТ ЗАВЕРШЕН!
         </h2>
+        <p className="text-text-muted mb-8">Результаты: Визуальная память</p>
 
-        <div className="w-full bg-surface border border-neon-green/30 rounded-xl p-8 text-center mb-6 relative overflow-hidden">
+        {/* ГЛАВНАЯ КАРТОЧКА */}
+        <div className="w-full bg-surface border border-neon-green/30 rounded-xl p-8 text-center mb-6 relative overflow-hidden shadow-2xl">
           <div
             className={`absolute top-0 left-1/2 -translate-x-1/2 text-[10px] font-bold px-4 py-1.5 rounded-b-md uppercase tracking-widest ${rank.color}`}
           >
@@ -216,6 +315,7 @@ export default function VisualMemory() {
           </div>
         </div>
 
+        {/* ТАК БЛИЗКО */}
         {rank.next && (
           <div className="w-full bg-[#3a2a1a] border border-yellow-600/50 rounded-lg p-4 mb-6 flex items-start gap-3">
             <div className="mt-1">
@@ -240,22 +340,66 @@ export default function VisualMemory() {
           </div>
         )}
 
+        {/* СЕТКА СТАТИСТИКИ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+          <div className="bg-surface border border-surface-border p-5 text-center rounded-xl">
+            <Grid className="w-5 h-5 text-neon-green mx-auto mb-2" />
+            <div className="text-2xl font-bold">{level}</div>
+            <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">
+              Результат
+            </div>
+          </div>
+          <div className="bg-surface border border-surface-border p-5 text-center rounded-xl">
+            <BarChart3 className="w-5 h-5 text-neon-cyan mx-auto mb-2" />
+            <div className="text-2xl font-bold">9</div>
+            <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">
+              Среднее в мире
+            </div>
+          </div>
+        </div>
+
+        {/* КНОПКИ */}
         <div className="flex flex-wrap justify-center gap-4 w-full mb-8">
-          {/* Главная кнопка - рестарт */}
           <button
             onClick={startGame}
             className="flex-1 min-w-[160px] bg-neon-green text-black px-6 py-3 font-bold rounded-sm hover:bg-white transition flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-4 h-4" /> ЕЩЁ РАЗ
           </button>
-
-          {/* Второстепенная - назад в каталог */}
           <Link
             href="/tests"
             className="flex-1 min-w-[160px] border border-surface-border bg-surface px-6 py-3 font-bold rounded-sm hover:border-text-muted transition flex items-center justify-center gap-2 text-text-muted"
           >
             ДРУГИЕ ТЕСТЫ
           </Link>
+        </div>
+
+        {/* ШАРИНГ */}
+        <div className="w-full bg-gradient-to-r from-blue-900/20 to-teal-900/20 border border-white/5 rounded-xl p-6 text-center">
+          <h3 className="text-lg font-bold text-white mb-2 flex items-center justify-center gap-2">
+            <Share2 className="w-5 h-5 text-teal-400" /> Брось вызов другу
+          </h3>
+          <p className="text-sm text-text-muted mb-4">
+            У меня идеальная зрительная память: уровень {level}! Сможешь
+            повторить?
+          </p>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(
+                `Я дошел до ${level} уровня в тесте на визуальную память! Сможешь лучше? ${window.location.origin}`,
+              );
+              setIsCopied(true);
+              setTimeout(() => setIsCopied(false), 2000);
+            }}
+            className={`text-white px-8 py-2 rounded text-sm font-bold transition flex items-center gap-2 mx-auto ${isCopied ? "bg-green-600" : "bg-teal-600 hover:bg-teal-500"}`}
+          >
+            {isCopied ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <LinkIcon className="w-4 h-4" />
+            )}
+            {isCopied ? "СКОПИРОВАНО!" : "СКОПИРОВАТЬ ССЫЛКУ"}
+          </button>
         </div>
       </div>
     );
