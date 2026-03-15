@@ -16,19 +16,32 @@ const getFlagEmoji = (countryCode: string) => {
 };
 
 export default async function Home() {
-  const { data: topPlayers } = await supabase
+  // 1. Берем с запасом 100 лучших результатов
+  const { data: rawScores } = await supabase
     .from("scores")
-    .select("player_name, score, country")
+    .select("player_name, score, country, user_id")
     .eq("test_name", "Reaction Time")
     .order("score", { ascending: true })
-    .limit(8);
+    .limit(100);
 
-  const players = topPlayers || [];
+  // 2. ФИЛЬТРУЕМ ДУБЛИКАТЫ (Оставляем только лучший результат каждого юзера)
+  const uniquePlayersMap = new Map();
+  if (rawScores) {
+    rawScores.forEach((entry) => {
+      // Т.к. данные уже отсортированы (лучшие сверху), мы просто берем первое совпадение
+      if (!uniquePlayersMap.has(entry.user_id)) {
+        uniquePlayersMap.set(entry.user_id, entry);
+      }
+    });
+  }
 
-  // 2. НОВЫЙ ЗАПРОС: Считаем ВСЕ записи в таблице scores (count)
+  // 3. Берем только ТОП-8 из уникальных
+  const top8Players = Array.from(uniquePlayersMap.values()).slice(0, 8);
+
+  // 4. Считаем общее количество тестов
   const { count } = await supabase
     .from("scores")
-    .select("*", { count: "exact", head: true }); // head: true значит "не скачивай данные, просто посчитай кол-во"
+    .select("*", { count: "exact", head: true });
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-16 lg:py-24">
@@ -107,12 +120,12 @@ export default async function Home() {
 
           {/* НАСТОЯЩИЙ Список игроков из БД */}
           <div className="flex flex-col gap-1 relative z-10">
-            {players.length === 0 ? (
+            {top8Players.length === 0 ? (
               <div className="text-center text-sm text-text-muted py-8">
                 Пока нет результатов. Станьте первым!
               </div>
             ) : (
-              players.map((player, index) => {
+              top8Players.map((player, index) => {
                 const rank = (index + 1).toString().padStart(2, "0");
                 const isTop3 = index < 3;
 

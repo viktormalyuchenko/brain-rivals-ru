@@ -61,6 +61,40 @@ export default function SignupPage() {
     }
   };
 
+  const COUNTRIES = [
+    { code: "RU", name: "Россия" },
+    { code: "BY", name: "Беларусь" },
+    { code: "KZ", name: "Казахстан" },
+    { code: "UA", name: "Украина" },
+    { code: "US", name: "США" },
+    { code: "GB", name: "Великобритания" },
+    { code: "DE", name: "Германия" },
+    { code: "FR", name: "Франция" },
+    { code: "IT", name: "Италия" },
+    { code: "ES", name: "Испания" },
+    { code: "PL", name: "Польша" },
+    { code: "CN", name: "Китай" },
+    { code: "JP", name: "Япония" },
+    { code: "KR", name: "Южная Корея" },
+    { code: "IN", name: "Индия" },
+    { code: "BR", name: "Бразилия" },
+    { code: "AR", name: "Аргентина" },
+    { code: "CA", name: "Канада" },
+    { code: "AU", name: "Австралия" },
+    { code: "TR", name: "Турция" },
+    { code: "ZA", name: "Турция" },
+    { code: "ID", name: "Индонезия" },
+    { code: "MX", name: "Мексика" },
+    { code: "FI", name: "Финляндия" },
+    { code: "SE", name: "Швеция" },
+    { code: "NO", name: "Норвегия" },
+    { code: "CH", name: "Швейцария" },
+    { code: "NL", name: "Нидерланды" },
+    { code: "AE", name: "ЮАР" },
+    { code: "EG", name: "Египет" },
+    { code: "OTHER", name: "Другая страна / Скрыто" },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       {/* Логотип */}
@@ -170,22 +204,21 @@ export default function SignupPage() {
 
           {/* Страна */}
           <div>
-            <label className="block text-xs text-text-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs text-text-muted uppercase tracking-wider mb-2 font-bold ml-1">
               Страна
             </label>
-            <div className="relative">
-              <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+            <div className="relative group">
+              <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-neon-green transition-colors" />
               <select
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
-                className="w-full bg-background border border-surface-border rounded-md py-3 pl-10 pr-4 focus:outline-none focus:border-neon-green transition text-sm appearance-none cursor-pointer"
+                className="w-full bg-background border border-surface-border rounded-md py-3 pl-10 pr-4 focus:outline-none focus:border-neon-green focus:ring-1 focus:ring-neon-green transition text-sm appearance-none cursor-pointer text-white"
               >
-                <option value="RU">Россия</option>
-                <option value="BY">Беларусь</option>
-                <option value="KZ">Казахстан</option>
-                <option value="UA">Украина</option>
-                <option value="US">США</option>
-                <option value="OTHER">Другая</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
