@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase"; // Наш клиент базы данных
+import { trackGoal } from "@/lib/analytics";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function SignupPage() {
       });
 
       if (signUpError) throw signUpError;
-
+      trackGoal("signup_success");
       // Если регистрация успешна, перекидываем в профиль
       // (В реальном проекте тут нужно перенести данные из localStorage в настоящую базу, сделаем это позже)
       router.push("/profile");

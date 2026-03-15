@@ -10,6 +10,9 @@ import {
   Info,
   ListChecks,
   ArrowLeft,
+  HelpCircle,
+  Play,
+  Keyboard,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -149,68 +152,182 @@ export default function ReactionTest() {
   if (gameState === "intro") {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12">
+        {/* Хлебные крошки */}
         <Link
-          href="/"
-          className="flex items-center gap-2 text-text-muted hover:text-white transition w-fit mb-8"
+          href="/tests"
+          className="flex items-center gap-2 text-text-muted hover:text-white transition w-fit mb-8 text-sm"
         >
-          <ArrowLeft className="w-4 h-4" /> Назад на главную
+          <ArrowLeft className="w-4 h-4" /> Назад к тестам
         </Link>
 
+        {/* 1. ШАПКА (Как в оригинале) */}
         <div className="flex flex-col items-center text-center mb-12">
-          <div className="w-16 h-16 rounded-full border border-surface-border bg-surface flex items-center justify-center mb-6">
+          <div className="w-16 h-16 rounded-full border border-surface-border bg-surface flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(0,255,136,0.1)]">
             <Zap className="w-8 h-8 text-neon-green" />
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4 uppercase tracking-tight">
-            Reaction Time
+            Скорость реакции
           </h1>
-          <p className="text-text-muted text-lg max-w-xl">
+          <p className="text-text-muted text-lg max-w-xl mb-6">
             Измерьте, как быстро вы реагируете на визуальные стимулы. Кликните
             по экрану, когда его цвет изменится.
           </p>
-          <div className="flex gap-4 mt-6 text-sm text-text-muted font-medium">
+          <div className="flex gap-4 text-xs font-bold text-text-muted uppercase tracking-widest">
             <span>
               Сложность: <span className="text-white">Легкая</span>
             </span>
             <span>•</span>
             <span>
-              Средний балл: <span className="text-white">245ms</span>
+              Среднее: <span className="text-white">245ms</span>
             </span>
           </div>
         </div>
 
-        {/* ВОССТАНОВЛЕННЫЕ КАРТОЧКИ ОПИСАНИЯ */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-surface border border-surface-border p-6 rounded-lg">
-            <div className="flex items-center gap-2 text-neon-green font-bold mb-4 uppercase text-sm">
-              <Info className="w-4 h-4" /> Как это работает
+        {/* 2. КАРТОЧКИ ИНСТРУКЦИЙ (Верхний блок) */}
+        <div className="grid md:grid-cols-2 gap-4 mb-8">
+          <div className="bg-surface border border-surface-border p-6 rounded-xl">
+            <div className="flex items-center gap-2 text-neon-green font-bold mb-3 uppercase text-sm tracking-widest">
+              <HelpCircle className="w-4 h-4" /> Как это работает
             </div>
-            <p className="text-text-muted text-sm leading-relaxed mb-4">
-              Экран меняет цвет с красного на зеленый через случайный промежуток
-              времени.
+            <p className="text-text-muted text-sm leading-relaxed">
+              Экран меняет цвет с красного на зеленый через случайный интервал.
+              Нажмите ПРОБЕЛ или кликните мышью как можно быстрее.
             </p>
-            <div className="text-xs font-mono bg-background p-2 rounded border border-surface-border">
-              Управление: Клик мышью или ПРОБЕЛ
-            </div>
           </div>
-          <div className="bg-surface border border-surface-border p-6 rounded-lg">
-            <div className="flex items-center gap-2 text-neon-green font-bold mb-4 uppercase text-sm">
-              <ListChecks className="w-4 h-4" /> Советы
+          <div className="bg-surface border border-surface-border p-6 rounded-xl">
+            <div className="flex items-center gap-2 text-neon-green font-bold mb-3 uppercase text-sm tracking-widest">
+              <Keyboard className="w-4 h-4" /> Управление
             </div>
-            <ul className="text-text-muted text-sm space-y-2 list-disc list-inside">
-              <li>Фокусируйте взгляд в центре экрана.</li>
-              <li>Держите палец на готове на кнопке мыши или пробеле.</li>
-              <li>Не пытайтесь угадать время, ждите реальной смены цвета.</li>
-            </ul>
+            <p className="text-text-muted text-sm leading-relaxed mb-2">
+              ПРОБЕЛ или Клик мышью.
+            </p>
+            <p className="text-text-muted text-xs opacity-70">
+              Также поддерживается нажатие по экрану на мобильных устройствах.
+            </p>
           </div>
         </div>
 
-        <div className="flex justify-center">
+        {/* КНОПКА СТАРТА */}
+        <div className="flex flex-col items-center justify-center mb-16">
           <button
             onClick={startGame}
-            className="bg-neon-green text-black px-12 py-4 rounded-sm font-extrabold text-lg flex items-center gap-2 hover:bg-white transition duration-300"
+            className="bg-neon-green text-black px-16 py-5 rounded-sm font-extrabold text-xl flex items-center gap-2 hover:bg-white hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,136,0.3)] mb-4"
           >
-            <Zap className="w-5 h-5" fill="currentColor" /> НАЧАТЬ ТЕСТ
+            <Play className="w-6 h-6" fill="currentColor" /> НАЧАТЬ ТЕСТ
           </button>
+          <span className="text-xs text-text-muted uppercase tracking-widest">
+            Нажмите пробел для старта
+          </span>
+        </div>
+
+        {/* 3. НИЖНИЙ БЛОК (SEO + ПОДРОБНОСТИ) */}
+        <div className="border-t border-surface-border pt-12">
+          {/* Сетка характеристик */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-black/20 border border-surface-border p-4 rounded-lg text-center">
+              <div className="text-[10px] text-text-muted uppercase tracking-widest mb-1">
+                Метрика
+              </div>
+              <div className="font-bold text-white text-sm">
+                миллисекунды (мс)
+              </div>
+            </div>
+            <div className="bg-black/20 border border-surface-border p-4 rounded-lg text-center">
+              <div className="text-[10px] text-text-muted uppercase tracking-widest mb-1">
+                Среднее
+              </div>
+              <div className="font-bold text-white text-sm">245 мс</div>
+            </div>
+            <div className="bg-black/20 border border-surface-border p-4 rounded-lg text-center">
+              <div className="text-[10px] text-text-muted uppercase tracking-widest mb-1">
+                Сложность
+              </div>
+              <div className="font-bold text-white text-sm">Легкая</div>
+            </div>
+            <div className="bg-black/20 border border-surface-border p-4 rounded-lg text-center">
+              <div className="text-[10px] text-text-muted uppercase tracking-widest mb-1">
+                Сыграно
+              </div>
+              <div className="font-bold text-white text-sm">1.2M</div>
+            </div>
+          </div>
+
+          {/* SEO Секция: Что это значит (Используем ключи из твоего CSV) */}
+          <div className="flex flex-col gap-4">
+            <div className="bg-surface border border-surface-border p-6 md:p-8 rounded-xl">
+              <h2 className="text-neon-green font-bold mb-3 uppercase text-sm tracking-widest flex items-center gap-2">
+                <HelpCircle className="w-4 h-4" /> Что проверяет тест
+              </h2>
+              <p className="text-text-muted text-sm leading-relaxed">
+                Скорость визуальной реакции и зрительно-моторную координацию.
+                Тест измеряет время между визуальным стимулом (сменой цвета) и
+                вашим физическим откликом.
+              </p>
+            </div>
+
+            {/* Внедряем SEO ответы на вопросы пользователей */}
+            <div className="bg-surface border border-surface-border p-6 md:p-8 rounded-xl">
+              <h2 className="text-neon-green font-bold mb-4 uppercase text-sm tracking-widest flex items-center gap-2">
+                <Activity className="w-4 h-4" /> Какая скорость реакции
+                нормальная? (Нормы в мс)
+              </h2>
+              <div className="text-text-muted text-sm leading-relaxed space-y-4">
+                <p>
+                  Средняя скорость реакции обычного человека на визуальный
+                  раздражитель составляет около{" "}
+                  <strong>240-250 миллисекунд</strong> (мс). Если ваш результат
+                  находится в диапазоне 200-300 мс — это абсолютно нормальная
+                  человеческая реакция.
+                </p>
+                <ul className="space-y-2 list-disc list-inside mt-2">
+                  <li>
+                    <strong>150-180 мс:</strong> Уровень киберспортсменов
+                    (про-игроки в CS2, Valorant). Выдающийся результат.
+                  </li>
+                  <li>
+                    <strong>200-218 мс:</strong> Отличная реакция, характерная
+                    для геймеров и молодых людей (14-25 лет).
+                  </li>
+                  <li>
+                    <strong>250-300 мс:</strong> Среднестатистическая норма.
+                  </li>
+                  <li>
+                    <strong>350+ мс:</strong> Нормально для старшего возраста,
+                    либо признак усталости и недосыпа.
+                  </li>
+                </ul>
+                <p className="text-xs opacity-70 mt-4 border-t border-white/5 pt-4">
+                  *Обратите внимание: на результат влияет ваше "железо". Обычный
+                  монитор 60Hz и беспроводная мышь могут добавлять 20-40 мс к
+                  вашему чистому биологическому времени (Input Lag).
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-surface border border-surface-border p-6 md:p-8 rounded-xl">
+              <h2 className="text-neon-green font-bold mb-3 uppercase text-sm tracking-widest flex items-center gap-2">
+                <ListChecks className="w-4 h-4" /> Как улучшить реакцию
+              </h2>
+              <ol className="text-text-muted text-sm space-y-3 list-decimal list-inside marker:text-neon-green marker:font-bold">
+                <li>
+                  <strong>Фокус:</strong> Смотрите ровно в центр экрана, не
+                  отвлекайтесь на периферию.
+                </li>
+                <li>
+                  <strong>Палец наготове:</strong> Держите палец на левой кнопке
+                  мыши или пробеле в полунажатом состоянии.
+                </li>
+                <li>
+                  <strong>Не гадайте:</strong> Если вы нажмете до зеленого
+                  цвета, игра зафиксирует фальстарт. Ждите реального изменения.
+                </li>
+                <li>
+                  <strong>Практика:</strong> Регулярные тесты помогают нейронным
+                  связям работать быстрее.
+                </li>
+              </ol>
+            </div>
+          </div>
         </div>
       </div>
     );

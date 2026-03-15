@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { trackGoal } from "./analytics";
 
 export async function saveScoreToDB(testName: string, finalScore: number) {
   try {
@@ -40,6 +41,12 @@ export async function saveScoreToDB(testName: string, finalScore: number) {
 
       console.log(`✅ [Local] Сохранено: ${testName} - ${finalScore}`);
     }
+
+    const safeGoalName = testName.replace(/\s+/g, "_");
+    trackGoal(`test_completed_${safeGoalName}`);
+
+    // И общую цель для конверсии
+    trackGoal("any_test_completed");
   } catch (err) {
     console.error("❌ Ошибка при автосохранении:", err);
   }
