@@ -41,6 +41,8 @@ export default function NumberMemory() {
   const [isCopied, setIsCopied] = useState(false); // Для кнопки шаринга
 
   // --- ЛОГИКА ---
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const showTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const startGame = () => {
     setLevel(1);
@@ -63,16 +65,15 @@ export default function NumberMemory() {
     setGameState("watching");
     setProgressWidth(100);
 
-    // Анимация таймера
     const interval = 10;
     const step = 100 / (time / interval);
-    const timer = setInterval(() => {
+
+    timerIntervalRef.current = setInterval(() => {
       setProgressWidth((prev) => Math.max(0, prev - step));
     }, interval);
 
-    // Переход к вводу
-    setTimeout(() => {
-      clearInterval(timer);
+    showTimeoutRef.current = setTimeout(() => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
       setGameState("input");
     }, time);
   };
@@ -115,6 +116,13 @@ export default function NumberMemory() {
 
   const rank = getRankInfo(score);
   const percentile = Math.min(99, Math.floor((score / 14) * 100)); // Условный процентиль
+
+  useEffect(() => {
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+      if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current);
+    };
+  }, []);
 
   // --- РЕНДЕР ---
 
@@ -481,7 +489,11 @@ export default function NumberMemory() {
       )}
 
       <button
-        onClick={() => setGameState("intro")}
+        onClick={() => {
+          if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+          if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current);
+          setGameState("intro");
+        }}
         className="absolute top-8 left-8 p-3 bg-black/20 hover:bg-black/40 rounded-full text-white transition border border-white/10"
       >
         <ArrowLeft className="w-6 h-6" />

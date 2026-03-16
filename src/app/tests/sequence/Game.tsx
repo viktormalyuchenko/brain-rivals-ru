@@ -54,6 +54,8 @@ export default function SequenceMemory() {
     stateRef.current = gameState;
   }, [gameState]);
 
+  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // --- ЛОГИКА ---
 
   const startCountdown = () => {
@@ -61,16 +63,26 @@ export default function SequenceMemory() {
     setCountdown(3);
 
     let count = 3;
-    const timer = setInterval(() => {
+    // Используем REF
+    countdownTimerRef.current = setInterval(() => {
       count--;
       if (count > 0) {
         setCountdown(count);
       } else {
-        clearInterval(timer);
-        startNewGame();
+        if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+        // Проверяем, не нажал ли юзер "Назад" за это время
+        if (stateRef.current === "countdown") {
+          startNewGame();
+        }
       }
     }, 1000);
   };
+
+  useEffect(() => {
+    return () => {
+      if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+    };
+  }, []);
 
   const startNewGame = () => {
     setLevel(1);
@@ -509,7 +521,11 @@ export default function SequenceMemory() {
       </div>
 
       <button
-        onClick={() => setGameState("intro")}
+        onClick={() => {
+          if (countdownTimerRef.current)
+            clearInterval(countdownTimerRef.current);
+          setGameState("intro");
+        }}
         className="absolute top-8 left-8 p-3 bg-black/20 hover:bg-black/40 rounded-full text-white transition border border-white/10"
       >
         <ArrowLeft className="w-6 h-6" />
