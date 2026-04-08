@@ -50,6 +50,26 @@ export default function SignupPage() {
       });
 
       if (signUpError) throw signUpError;
+      if (data.user) {
+        const deviceId = localStorage.getItem("device_id");
+
+        if (deviceId) {
+          // Обновляем все прошлые гостевые результаты в базе: присваиваем им новый аккаунт
+          await supabase
+            .from("scores")
+            .update({
+              user_id: data.user.id,
+              player_name: fullName,
+              country: country,
+            })
+            .eq("device_id", deviceId) // Ищем результаты именно с этого браузера
+            .is("user_id", null); // Убеждаемся, что они были гостевыми
+
+          console.log(
+            "Гостевые результаты успешно привязаны к новому аккаунту!",
+          );
+        }
+      }
       trackGoal("signup_success");
       // Если регистрация успешна, перекидываем в профиль
       // (В реальном проекте тут нужно перенести данные из localStorage в настоящую базу, сделаем это позже)
